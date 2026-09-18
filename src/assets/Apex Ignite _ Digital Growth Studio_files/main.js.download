@@ -1,0 +1,1177 @@
+// Header Start
+document.addEventListener('DOMContentLoaded', function () {
+
+  // 1. STICKY HEADER & TOP BAR SCROLL BEHAVIOR
+  const topBar = document.getElementById('nrj_Header-topbar');
+  const mainHeader = document.getElementById('headeriD-NRJ');
+
+  window.addEventListener('scroll', function () {
+    // compute total header height (top bar + main header) and reserve it
+    function handleHeaderSticky() {
+      var topH = topBar ? topBar.offsetHeight : 0;
+      var mainH = mainHeader ? mainHeader.offsetHeight : 0;
+      var totalH = topH + mainH;
+
+      if (window.scrollY > 40) {
+        // keep the combined height reserved before making header fixed
+        try { document.body.style.paddingTop = totalH + 'px'; } catch (e) {}
+        if (topBar) topBar.classList.add('hide');
+        if (mainHeader && !mainHeader.classList.contains('sticky')) {
+          mainHeader.classList.add('sticky');
+        }
+      } else {
+        if (topBar) topBar.classList.remove('hide');
+        if (mainHeader && mainHeader.classList.contains('sticky')) {
+          mainHeader.classList.remove('sticky');
+        }
+        try { document.body.style.paddingTop = ''; } catch (e) {}
+      }
+    }
+
+    handleHeaderSticky();
+  });
+
+  // initialize header state on load in case page is already scrolled
+  window.dispatchEvent(new Event('scroll'));
+
+  // Mega Menu Click Support for Desktop/Tablet
+  const megaNavLinks = document.querySelectorAll('.nrj_Header-has-mega > .nrj_Header-nav-link');
+  megaNavLinks.forEach(link => {
+    link.addEventListener('click', function (e) {
+      e.preventDefault();
+      const parent = this.parentElement;
+      const isActive = parent.classList.contains('force-open');
+
+      document.querySelectorAll('.nrj_Header-has-mega').forEach(li => li.classList.remove('force-open'));
+
+      if (!isActive) {
+        parent.classList.add('force-open');
+      }
+    });
+  });
+
+  // Close mega menu when clicking outside
+  document.addEventListener('click', function (e) {
+    if (!e.target.closest('.nrj_Header-has-mega')) {
+      document.querySelectorAll('.nrj_Header-has-mega').forEach(li => li.classList.remove('force-open'));
+    }
+  });
+
+  // 2. ABOUT US MEGA MENU HOVER IMAGE CHANGER
+  const aboutLinks = document.querySelectorAll('.nrj_Header-mega-about-inner .nrj_Header-mega-link-item');
+  const aboutImg = document.getElementById('nrj_Header-about-img');
+  const aboutCaption = document.getElementById('nrj_Header-about-caption');
+
+  aboutLinks.forEach(link => {
+    link.addEventListener('mouseenter', function () {
+      const newImg = this.getAttribute('data-img');
+      const newCaption = this.querySelector('strong').innerText;
+
+      if (newImg && aboutImg) {
+        aboutImg.style.opacity = '0.3';
+        setTimeout(() => {
+          aboutImg.src = newImg;
+          aboutImg.style.opacity = '1';
+        }, 150);
+      }
+      // if (newCaption && aboutCaption) {
+      //   aboutCaption.innerHTML = newCaption + "<br/>for a Better Tomorrow";
+      // }
+    });
+  });
+
+  // 3. PRODUCTS MEGA MENU HOVER IMAGE CHANGER
+  const prodLinks = document.querySelectorAll('.nrj_Header-mega-products-inner .nrj_Header-prod-item');
+  const prodImg = document.getElementById('nrj_Header-prod-img');
+  const prodCaption = document.getElementById('nrj_Header-prod-caption');
+
+  prodLinks.forEach(link => {
+    link.addEventListener('mouseenter', function () {
+      const newImg = this.getAttribute('data-img');
+      const newCaptionRaw = this.querySelector('a').innerText;
+
+      if (newImg && prodImg) {
+        prodImg.style.opacity = '0.3';
+        setTimeout(() => {
+          prodImg.src = newImg;
+          prodImg.style.opacity = '1';
+        }, 150);
+      }
+      if (newCaptionRaw && prodCaption) {
+        // Break the string for visual effect based on the mockup
+        prodCaption.innerHTML = "Precision<br/>" + newCaptionRaw + "<br/>for a Better<br/>Tomorrow";
+      }
+    });
+  });
+
+  // 4. SEARCH OVERLAY & REAL SITE NAVIGATION
+  const searchTrigger = document.getElementById('nrj_Header-search-trigger');
+  const searchOverlay = document.getElementById('nrj_Header-search-overlay');
+  const searchCloseZone = document.getElementById('nrj_Header-search-close-zone');
+  const searchCloseBtn = document.getElementById('nrj_Header-search-close-btn');
+  const searchInput = document.getElementById('nrj_Header-search-input');
+  const searchResults = document.getElementById('nrj_Header-search-results');
+
+  const siteSearchItems = [
+    { label: 'Home', keywords: ['home', 'start', 'main'], href: '#', target: 'body' },
+    { label: 'About', keywords: ['about', 'company', 'who we are'], href: '#whYCHosee_NRJ_section', target: '#whYCHosee_NRJ_section' },
+    { label: 'Products', keywords: ['products', 'components', 'solutions', 'molding'], href: '#NRJProduTT_Call', target: '#NRJProduTT_Call' },
+    { label: 'Why Choose Us', keywords: ['why choose', 'advantages', 'benefits'], href: '#whYCHosee_NRJ_section', target: '#whYCHosee_NRJ_section' },
+    { label: 'FAQ', keywords: ['faq', 'questions', 'support', 'help'], href: '#faqNErgh', target: '#faqNErgh' },
+    { label: 'Contact', keywords: ['contact', 'quote', 'inquiry', 'send query'], href: '#talkToExpert', target: '#talkToExpert' },
+    { label: 'Quality', keywords: ['quality', 'certified', 'iso', 'standards'], href: '#nrj-Tab', target: '#nrj-Tab' }
+  ];
+
+  function openSearch() {
+    if (searchOverlay) {
+      searchOverlay.classList.add('open');
+      if (searchInput) {
+        searchInput.value = '';
+        if (searchResults) searchResults.innerHTML = '<p style="color:#64748b; font-size:14px; margin-top:20px;">Start typing to see results...</p>';
+        setTimeout(() => searchInput.focus(), 100);
+      }
+    }
+  }
+
+  function closeSearch() {
+    if (searchOverlay) searchOverlay.classList.remove('open');
+  }
+
+  function navigateToSection(target) {
+    if (!target) return;
+    const el = document.querySelector(target);
+    if (el) {
+      closeSearch();
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      return true;
+    }
+    return false;
+  }
+
+  function renderSearchResults(term) {
+    if (!searchResults) return;
+
+    const value = term.trim().toLowerCase();
+    if (!value) {
+      searchResults.innerHTML = '<p style="color:#64748b; font-size:14px; margin-top:20px;">Start typing to see results...</p>';
+      return;
+    }
+
+    const matches = siteSearchItems.filter(item => {
+      const haystack = [item.label, ...item.keywords].join(' ').toLowerCase();
+      return haystack.includes(value);
+    });
+
+    if (!matches.length) {
+      searchResults.innerHTML = '<p style="color:#64748b; font-size:14px; margin-top:20px;">No matching results found.</p>';
+      return;
+    }
+
+    searchResults.innerHTML = matches.map(item => `
+      <a href="${item.href}" class="nrj_Header-search-result-item" data-target="${item.target}" style="display:block; text-decoration:none; color:#0f172a; padding:12px 14px; margin-top:10px; background:#f8fafc; border-radius:10px; border:1px solid #e2e8f0; transition:all .2s ease;">
+        <strong style="display:block; font-size:15px; margin-bottom:4px;">${item.label}</strong>
+        <span style="font-size:12px; color:#64748b;">${item.keywords.join(', ')}</span>
+      </a>
+    `).join('');
+
+    searchResults.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = this.getAttribute('data-target');
+        navigateToSection(target);
+      });
+    });
+  }
+
+  if (searchTrigger) searchTrigger.addEventListener('click', openSearch);
+  if (searchCloseZone) searchCloseZone.addEventListener('click', closeSearch);
+  if (searchCloseBtn) searchCloseBtn.addEventListener('click', closeSearch);
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && searchOverlay && searchOverlay.classList.contains('open')) {
+      closeSearch();
+    }
+  });
+
+  if (searchInput && searchResults) {
+    searchInput.addEventListener('input', function () {
+      renderSearchResults(this.value);
+    });
+  }
+
+  // 5. HAMBURGER OFFCANVAS DRAWER
+  const hamburgerTrigger = document.getElementById('nrj_Header-hamburger-trigger');
+  const drawer = document.getElementById('nrj_Header-drawer');
+  const drawerBackdrop = document.getElementById('nrj_Header-drawer-backdrop');
+  const drawerClose = document.getElementById('nrj_Header-drawer-close');
+
+  function openDrawer() {
+    if (drawer) drawer.classList.add('open');
+  }
+  function closeDrawer() {
+    if (drawer) drawer.classList.remove('open');
+  }
+
+  if (hamburgerTrigger) hamburgerTrigger.addEventListener('click', openDrawer);
+  if (drawerBackdrop) drawerBackdrop.addEventListener('click', closeDrawer);
+  if (drawerClose) drawerClose.addEventListener('click', closeDrawer);
+
+  // Accordion is handled inline in header.php to avoid conflicts
+
+  // 6. GLOBAL AOS INIT (smooth scroll reveal)
+  if (window.AOS) {
+    AOS.init({
+      duration: 800,
+      once: true,
+      offset: 80,
+      easing: 'ease-out-cubic',
+      mirror: false
+    });
+  } else {
+    document.querySelectorAll('[data-aos]').forEach(function (el) {
+      var delay = Number(el.getAttribute('data-aos-delay')) || 0;
+      el.style.transitionDelay = delay + 'ms';
+      el.classList.add('aos-animate');
+    });
+  }
+
+});
+// Header End
+
+
+
+
+
+// FAQ Section Accordion JS Start
+(function () {
+  var faqInit = function () {
+    var section = document.getElementById('faqNErgh');
+    if (!section) return;
+
+    var items = section.querySelectorAll('.faq_nrj_item');
+
+    function selectItem(target) {
+      if (target.classList.contains('faq_nrj_active')) return;
+
+      items.forEach(function (el) {
+        el.classList.remove('faq_nrj_active');
+        el.setAttribute('aria-expanded', 'false');
+      });
+
+      target.classList.add('faq_nrj_active');
+      target.setAttribute('aria-expanded', 'true');
+    }
+
+    items.forEach(function (item) {
+      item.addEventListener('click', function () {
+        selectItem(item);
+      });
+
+      item.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          selectItem(item);
+        }
+      });
+    });
+  };
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', faqInit);
+  } else {
+    faqInit();
+  }
+})();
+// FAQ Section Accordion JS End
+
+
+
+
+
+
+
+
+// About Us Section JS Start
+/* ── AOS-like scroll observer ── */
+(function () {
+  var els = document.querySelectorAll('[data-aos]');
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (e.isIntersecting) { e.target.classList.add('aos-animate'); }
+    });
+  }, { threshold: 0.12 });
+  els.forEach(function (el) {
+    var d = el.getAttribute('data-delay');
+    if (d) el.style.transitionDelay = (parseInt(d) / 1000) + 's';
+    io.observe(el);
+  });
+  /* trigger already-visible on load */
+  setTimeout(function () {
+    els.forEach(function (el) {
+      if (el.getBoundingClientRect().top < window.innerHeight * 0.98) {
+        el.classList.add('aos-animate');
+      }
+    });
+  }, 80);
+})();
+
+/* ── SMOOTH LERP PARALLAX: back image — 3D translateZ lift ── */
+(function () {
+  var wrap = document.getElementById('abouts-back-wrap');
+  var img = document.getElementById('abouts-parallax-img');
+  if (!wrap || !img) return;
+
+  var current = 0;   /* current animated Y value  */
+  var target = 0;   /* target Y from scroll       */
+  var strength = 0.10; /* how much parallax shifts   */
+  var lerpSpeed = 0.06; /* smoothing: 0=freeze, 1=instant — keep 0.05–0.08 */
+  var ticking = false;
+
+  function calcTarget() {
+    var rect = wrap.getBoundingClientRect();
+    var center = rect.top + rect.height * 0.5;
+    var vhalf = window.innerHeight * 0.5;
+    /* how far element center is from viewport center */
+    var raw = (vhalf - center) * strength;
+    /* clamp travel to ±38px so image never shows gap */
+    target = Math.max(-38, Math.min(38, raw));
+  }
+
+  function lerp(a, b, t) { return a + (b - a) * t; }
+
+  function tick() {
+    calcTarget();
+    /* smooth interpolation every frame */
+    current = lerp(current, target, lerpSpeed);
+
+    /* 3D style: translateY for depth feel + translateZ pushes into z-space */
+    img.style.transform =
+      'translate3d(0, ' + current.toFixed(3) + 'px, 0) scale3d(1.02,1.02,1)';
+
+    ticking = requestAnimationFrame(tick);
+  }
+
+  /* Start loop only when section is near viewport */
+  var started = false;
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (e.isIntersecting && !started) {
+        started = true;
+        ticking = requestAnimationFrame(tick);
+      } else if (!e.isIntersecting && started) {
+        started = false;
+        cancelAnimationFrame(ticking);
+      }
+    });
+  }, { rootMargin: '200px' });
+  io.observe(wrap);
+})();
+
+/* ── BADGE: stop spin on hover ── */
+(function () {
+  var badge = document.querySelector('.abouts-dasja__badge svg');
+  if (!badge) return;
+  badge.addEventListener('mouseenter', function () { badge.style.animationPlayState = 'paused'; });
+  badge.addEventListener('mouseleave', function () { badge.style.animationPlayState = 'running'; });
+})();
+// About Us Section JS End
+
+
+
+
+
+
+// Footer Section JS Start
+document.addEventListener('DOMContentLoaded', function () {
+
+/* ----------------------------------------------------------------------
+    1. 3D PERSPECTIVE & MAGNETIC HOVER FOR CIRCLE BUTTON
+    ---------------------------------------------------------------------- */
+const circleBtn = document.getElementById('Fotter_nrj-circle-btn');
+if (circleBtn) {
+  let isHovered = false;
+  let targetX = 0, targetY = 0;
+  let currentX = 0, currentY = 0;
+  let rotX = 0, rotY = 0;
+
+  circleBtn.addEventListener('mouseenter', function () {
+    isHovered = true;
+  });
+
+  circleBtn.addEventListener('mousemove', function (e) {
+    const rect = circleBtn.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+    const deltaX = e.clientX - centerX;
+    const deltaY = e.clientY - centerY;
+
+    // Magnetic translation (up to 16px)
+    targetX = deltaX * 0.25;
+    targetY = deltaY * 0.25;
+
+    // 3D rotation tilt perspective (up to 14 degrees)
+    rotX = -(deltaY / (rect.height / 2)) * 14;
+    rotY = (deltaX / (rect.width / 2)) * 14;
+  });
+
+  circleBtn.addEventListener('mouseleave', function () {
+    isHovered = false;
+    targetX = 0;
+    targetY = 0;
+    rotX = 0;
+    rotY = 0;
+  });
+
+  // Smooth physics loop
+  function updateCircleMotion() {
+    currentX += (targetX - currentX) * 0.14;
+    currentY += (targetY - currentY) * 0.14;
+
+    if (isHovered || Math.abs(currentX) > 0.05 || Math.abs(currentY) > 0.05) {
+      circleBtn.style.transform = `perspective(600px) translate3d(${currentX.toFixed(2)}px, ${currentY.toFixed(2)}px, 0) rotateX(${rotX.toFixed(2)}deg) rotateY(${rotY.toFixed(2)}deg)`;
+    } else {
+      circleBtn.style.transform = 'perspective(600px) translate3d(0, 0, 0) rotateX(0deg) rotateY(0deg)';
+    }
+
+    requestAnimationFrame(updateCircleMotion);
+  }
+  requestAnimationFrame(updateCircleMotion);
+}
+
+/* ----------------------------------------------------------------------
+    2. SMOOTH PARALLAX FOR "APEX IGNITE" GIANT WATERMARK
+    (Rises from bottom edge smoothly as user scrolls into the footer)
+    ---------------------------------------------------------------------- */
+const footerEl = document.getElementById('NRJ-footer');
+const watermarkEl = document.getElementById('Fotter_nrj-watermark');
+
+if (footerEl && watermarkEl) {
+  let currentTranslateY = 55;
+  let targetTranslateY = 55;
+  let isTicking = false;
+
+  function calcParallax() {
+    const rect = footerEl.getBoundingClientRect();
+    const windowHeight = window.innerHeight;
+
+    // Only calculate when footer is approaching or visible
+    if (rect.top < windowHeight && rect.bottom > 0) {
+      const visibleDistance = windowHeight - rect.top;
+      const totalDistance = windowHeight + rect.height;
+      // Progress from 0 (just entering) to 1 (fully reached)
+      const progress = Math.min(Math.max(visibleDistance / totalDistance, 0), 1);
+
+      // Watermark starts partially submerged (58% down) and smoothly rises to 28% down
+      // Remaining half-vertical horizontally as requested
+      targetTranslateY = 58 - (progress * 30);
+    }
+  }
+
+  function renderParallax() {
+    // Smooth Lerp (Linear Interpolation)
+    currentTranslateY += (targetTranslateY - currentTranslateY) * 0.08;
+    watermarkEl.style.transform = `translate(-50%, ${currentTranslateY.toFixed(2)}%)`;
+
+    requestAnimationFrame(renderParallax);
+  }
+
+  window.addEventListener('scroll', calcParallax, { passive: true });
+  window.addEventListener('resize', calcParallax);
+
+  calcParallax();
+  renderParallax();
+}
+
+/* ----------------------------------------------------------------------
+    3. BACK TO TOP (FIXED BOTTOM RIGHT - SHOWS AFTER 200PX SCROLL)
+    ---------------------------------------------------------------------- */
+const backToTopBtn = document.getElementById('Fotter_nrj-back-to-top');
+if (backToTopBtn) {
+  function checkScrollPos() {
+    if (window.scrollY > 200) {
+      backToTopBtn.classList.add('is-visible');
+    } else {
+      backToTopBtn.classList.remove('is-visible');
+    }
+  }
+
+  window.addEventListener('scroll', checkScrollPos, { passive: true });
+  checkScrollPos(); // initial state check
+
+  backToTopBtn.addEventListener('click', function (e) {
+    e.preventDefault();
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  });
+}
+
+});
+// Footer Section JS End
+
+
+
+
+// Industry We Serve Section JS Start
+document.addEventListener("DOMContentLoaded", function () {
+
+    const observer = new IntersectionObserver(
+        (entries) => {
+
+            entries.forEach((entry) => {
+
+                if (entry.isIntersecting) {
+
+                    entry.target.classList.add("is-visible");
+
+                    observer.unobserve(entry.target);
+                }
+
+            });
+
+        },
+        {
+            threshold: 0.15,
+            rootMargin: "0px 0px -50px 0px"
+        }
+    );
+
+    const hexWraps = document.querySelectorAll(
+        ".chitkara-hex-wrap"
+    );
+
+    hexWraps.forEach((wrap, index) => {
+
+        wrap.style.transitionDelay =
+            `${(index % 6) * 0.1}s`;
+
+        observer.observe(wrap);
+    });
+
+});
+
+/* -----------------------------------------
+   Background Parallax (continuous, smooth)
+   ----------------------------------------- */
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    const section = document.querySelector(".indstry-Srv_sec");
+
+    if (!section) return;
+
+    let target = 0;
+    let current = 0;
+    let inView = false;
+    let rafId = null;
+
+    function calcTarget() {
+
+        const rect = section.getBoundingClientRect();
+        const viewportHeight = window.innerHeight;
+
+        const progress =
+            (viewportHeight - rect.top) /
+            (viewportHeight + rect.height);
+
+        /*
+         * PARALLAX SPEED
+         * 150 = clearly visible movement
+         */
+        target = (progress - 0.5) * 150;
+    }
+
+    function loop() {
+
+        calcTarget();
+
+        /*
+         * SMOOTHNESS
+         * 0.1 = buttery / inertia-jaisa feel
+         * (jitna kam number, utna hi smoother/slower catch-up)
+         */
+        current += (target - current) * 0.1;
+
+        section.style.setProperty(
+            "--industry-parallax",
+            `${current.toFixed(2)}px`
+        );
+
+        if (inView) {
+            rafId = requestAnimationFrame(loop);
+        } else {
+            rafId = null;
+        }
+    }
+
+    function startLoop() {
+        if (rafId === null) {
+            rafId = requestAnimationFrame(loop);
+        }
+    }
+
+    /* Sirf tab chale jab section screen ke aas-paas ho */
+    const io = new IntersectionObserver(
+        (entries) => {
+            entries.forEach((entry) => {
+                inView = entry.isIntersecting;
+                if (inView) startLoop();
+            });
+        },
+        { threshold: 0, rootMargin: "200px 0px 200px 0px" }
+    );
+
+    io.observe(section);
+
+    window.addEventListener("resize", calcTarget, { passive: true });
+
+});
+
+// Industry We Serve Section JS End
+
+
+
+// Banner JS Start
+// document.addEventListener('DOMContentLoaded', function () {
+//     const bannerVideo = document.querySelector('.baner_soderhaNrj-video');
+//     if (bannerVideo) {
+//         bannerVideo.muted = true;
+//         bannerVideo.playsInline = true;
+//         bannerVideo.setAttribute('playsinline', 'true');
+//         bannerVideo.play().catch(function () {
+//         });
+//     }
+// });
+// Banner JS End
+
+
+
+// Products Section JS Start
+(function () {
+    'use strict';
+
+    document.addEventListener('DOMContentLoaded', function () {
+
+        /* ══════════════════════════════════════════
+           DOM ELEMENTS
+        ══════════════════════════════════════════ */
+        var NRJEl = {
+            spacer: document.getElementById('NRJProduTT_Call'),
+            bgSlide: document.querySelector('#NRJProduTT_Call .NRJ_right__bg_slide'),
+            track: document.getElementById('NRJ_products_track'),
+            overlay: document.getElementById('NRJ_overlay'),
+            panel: document.getElementById('NRJ_slide_panel'),
+            panelClose: document.getElementById('NRJ_panel_close_btn'),
+            panelScroll: document.getElementById('NRJ_panel_scroll'),
+            panelImg: document.getElementById('NRJ_panel_img'),
+            panelTag: document.getElementById('NRJ_panel__tag'),
+            panelHead: document.getElementById('NRJ_panel_heading'),
+            panelDesc: document.getElementById('NRJ_panel_desc'),
+            sendQuery: document.getElementById('NRJ_btn_send_query'),
+            popupWrap: document.getElementById('NRJ_query_popup_wrap'),
+            popupClose: document.getElementById('NRJ_popup_close'),
+            popupProd: document.getElementById('NRJ_popup_product'),
+            popupSubmit: document.getElementById('NRJ_popup_submit'),
+            popupForm: document.getElementById('NRJ_popup_form_content'),
+            successMsg: document.getElementById('NRJ_success_msg'),
+            relatedGrid: document.getElementById('ytrekjhgfxcvbnm_related_grid'),
+            relatedCount: document.getElementById('ytrekjhgfxcvbnm_component_count')
+        };
+
+
+        /* ══════════════════════════════════════════
+           STATE
+        ══════════════════════════════════════════ */
+        var NRJ_isMobile = false;
+        var NRJ_spacerExtra = 0;
+        var NRJ_bgTriggered = false;
+        var NRJ_activeName = '';
+        var NRJ_activeKey = '';
+
+
+        /* ══════════════════════════════════════════
+           RELATED PRODUCTS DATA
+        ══════════════════════════════════════════ */
+        var dfghjklwertyuicvbnmRelatedData = {
+
+            "speedometer": [
+                { name: "Speedometer", image: "assets/images/image 47.webp" },
+            ],
+
+            "automotive-lock-components": [
+                { name: "Housing", image: "assets/images/image 1.webp" },
+                { name: "Handle", image: "assets/images/image 2.webp" },
+                { name: "Body", image: "assets/images/image 3.webp" },
+                { name: "Body", image: "assets/images/image 4.webp" },
+                { name: "Body cap", image: "assets/images/image 5.webp" },
+                 { name: "Body cap", image: "assets/images/image 6.webp" },
+                  { name: "Body Switch, Cap, Body", image: "assets/images/image 7.webp" },
+                   { name: "Handle", image: "assets/images/image 8.webp" }
+            ],
+
+            "auto-electrical-alternator-parts": [
+                { name: "Protective Cover", image: "assets/images/image 9.webp" },
+                { name: "Protective Cover", image: "assets/images/image 10.webp" },
+                { name: "Inter Connection & Insulating Plate", image: "assets/images/image 11.webp" },
+                 { name: "Regulator Holder & Brush Box", image: "assets/images/image 12.webp" },
+                  { name: "Brush Box", image: "assets/images/image 13.webp" },
+                   { name: "Cover Of Back Bracket", image: "assets/images/image 14.webp" },
+                    { name: "Brush", image: "assets/images/image 15.webp" },
+                     { name: "Connector Terminal & Brush Box", image: "assets/images/image 16.webp" },
+                      { name: "Bobbin", image: "assets/images/image 17.webp" }
+            ],
+
+            "auto-electrical-starter-parts": [
+                { name: "Brushholder", image: "assets/images/image 18.webp" },
+                { name: "Interbracket", image: "assets/images/image 19.webp" },
+                   { name: "Interbracket", image: "assets/images/image 20.webp" },
+                      { name: "Peg", image: "assets/images/image 21.webp" },
+                         { name: "Shift Lever", image: "assets/images/image 22.webp" },
+                            { name: "Shift Lever", image: "assets/images/image 23.webp" },
+                               { name: "Solenoid Cover", image: "assets/images/image 24.webp" }
+            ],
+
+            "automotive-steering-components": [
+                { name: "Plastic Cap", image: "assets/images/image 25.webp" },
+                { name: "Protecting Cap", image: "assets/images/image 26.webp" },
+ { name: "Protecting Cap", image: "assets/images/image 27.webp" },
+                 { name: "Protecting Cap", image: "assets/images/image 28.webp" },
+                  { name: "Protecting Cap", image: "assets/images/image 29.webp" },
+                   { name: "Protecting Cap", image: "assets/images/image 30.webp" },
+                    { name: "Protecting Cap", image: "assets/images/image 31.webp" },
+                     { name: "Protecting Cap", image: "assets/images/image 32.webp" },
+                      { name: "Protecting Cap", image: "assets/images/image 33.webp" },
+                       { name: "Protecting Cap", image: "assets/images/image 34.webp" }
+            ],
+
+            "washing-machine-parts": [
+                { name: "Bearing Cap", image: "assets/images/image 35.webp" },
+                { name: "Buffer Holder", image: "assets/images/image 36.webp" },
+                { name: "Knob", image: "assets/images/image 37.webp" },
+                { name: "Knob", image: "assets/images/image 38.webp" },
+                { name: "Lever Drain", image: "assets/images/image 39.webp" },
+                { name: "Lever Drain", image: "assets/images/image 40.webp" }
+            ],
+
+            "mcb-switch-gear-parts": [
+                { name: "MCB Body", image: "assets/images/image 41.webp" },
+                { name: "Camlock Ease", image: "assets/images/image 42.webp" },
+                { name: "Camlock Cover", image: "assets/images/image 43.webp" },
+                { name: "Handle", image: "assets/images/image 44.webp" },
+                { name: "Lever", image: "assets/images/image 45.webp" },
+                { name: "Plain Lever", image: "assets/images/image 46.webp" }
+            ],
+
+            "oil-gauge-meter": [
+                  { name: "Bearing Cap", image: "assets/images/image 35.webp" },
+                { name: "Buffer Holder", image: "assets/images/image 36.webp" },
+                { name: "Knob", image: "assets/images/image 37.webp" },
+                { name: "Knob", image: "assets/images/image 38.webp" },
+                { name: "Lever Drain", image: "assets/images/image 39.webp" },
+                { name: "Lever Drain", image: "assets/images/image 40.webp" }
+            ]
+
+        };
+
+
+        /* ══════════════════════════════════════════
+           LOAD RELATED COMPONENTS
+        ══════════════════════════════════════════ */
+        function ytrekjhgfxcvbnmLoadRelatedComponents(productKey) {
+
+            var grid = NRJEl.relatedGrid;
+            var count = NRJEl.relatedCount;
+
+            if (!grid || !count) return;
+
+            var items = dfghjklwertyuicvbnmRelatedData[productKey] || [];
+
+            count.textContent = items.length + ' ' + (items.length === 1 ? 'Component' : 'Components');
+
+            grid.innerHTML = '';
+
+            if (!items.length) {
+                grid.innerHTML = '<div class="ytrekjhgfxcvbnm_empty">No related components found.</div>';
+                return;
+            }
+
+            items.forEach(function (item, index) {
+
+                var card = document.createElement('div');
+                card.className = 'ytrekjhgfxcvbnm_related_card';
+                card.style.setProperty('--dfghjklwertyuicvbnm-delay', (index * 70) + 'ms');
+
+                card.innerHTML =
+                    '<div class="dfghjklwertyuicvbnm_image_box">' +
+                        '<img src="' + item.image + '" alt="' + item.name + '" loading="lazy">' +
+                        '<div class="dfghjklwertyuicvbnm_image_overlay"></div>' +
+                    '</div>' +
+                    '<div class="dfghjklwertyuicvbnm_component_name">' + item.name + '</div>';
+
+                grid.appendChild(card);
+
+            });
+
+        }
+
+
+        /* ══════════════════════════════════════════
+           READ MORE → OPEN PANEL
+        ══════════════════════════════════════════ */
+        document.querySelectorAll('.NRJ_btn_read_more').forEach(function (btn) {
+
+            btn.addEventListener('click', function (e) {
+
+                e.stopPropagation();
+                e.preventDefault();
+
+                var card = btn.closest('.NRJ_product_card');
+                if (!card) return;
+
+                var cardImg = card.querySelector('img');
+                var cardHeading = card.querySelector('h3');
+                var cardDesc = card.querySelector('p');
+
+                // Image
+                if (cardImg && NRJEl.panelImg) {
+                    NRJEl.panelImg.src = cardImg.src;
+                    NRJEl.panelImg.alt = cardHeading ? cardHeading.textContent : '';
+                }
+
+                // Tag
+                if (card.getAttribute('data-tag') && NRJEl.panelTag) {
+                    NRJEl.panelTag.textContent = card.getAttribute('data-tag');
+                }
+
+                // Heading + active name
+                if (cardHeading && NRJEl.panelHead) {
+                    NRJEl.panelHead.textContent = cardHeading.textContent;
+                    NRJ_activeName = cardHeading.textContent;
+                    if (NRJEl.popupProd) NRJEl.popupProd.value = NRJ_activeName;
+                }
+
+                // Description
+                if (cardDesc && NRJEl.panelDesc) {
+                    NRJEl.panelDesc.textContent = cardDesc.textContent;
+                }
+
+                // Active key (card id) → load related components
+                NRJ_activeKey = card.id || '';
+                ytrekjhgfxcvbnmLoadRelatedComponents(NRJ_activeKey);
+
+                // Open panel
+                if (NRJEl.panel) NRJEl.panel.classList.add('NRJ_panel_open');
+                if (NRJEl.overlay) NRJEl.overlay.classList.add('NRJ_overlay_active');
+                document.body.style.overflow = 'hidden';
+
+                if (NRJEl.panelScroll) {
+                    NRJEl.panelScroll.scrollTop = 0;
+                }
+
+            });
+
+        });
+
+
+        /* ══════════════════════════════════════════
+           CLOSE PANEL
+        ══════════════════════════════════════════ */
+        function NRJ_closePanel() {
+            if (NRJEl.panel) NRJEl.panel.classList.remove('NRJ_panel_open');
+            if (NRJEl.overlay) NRJEl.overlay.classList.remove('NRJ_overlay_active');
+            document.body.style.overflow = '';
+        }
+
+        if (NRJEl.panelClose) {
+            NRJEl.panelClose.addEventListener('click', NRJ_closePanel);
+        }
+
+        if (NRJEl.overlay) {
+            NRJEl.overlay.addEventListener('click', NRJ_closePanel);
+        }
+
+
+        /* ══════════════════════════════════════════
+           SEND QUERY → OPEN POPUP
+        ══════════════════════════════════════════ */
+        if (NRJEl.sendQuery) {
+            NRJEl.sendQuery.addEventListener('click', function () {
+
+                if (NRJEl.popupProd) NRJEl.popupProd.value = NRJ_activeName;
+                if (NRJEl.popupForm) NRJEl.popupForm.style.display = '';
+                if (NRJEl.successMsg) NRJEl.successMsg.classList.remove('NRJ_visible');
+                if (NRJEl.popupWrap) NRJEl.popupWrap.classList.add('NRJ_popup_active');
+
+            });
+        }
+
+
+        /* ══════════════════════════════════════════
+           CLOSE POPUP
+        ══════════════════════════════════════════ */
+        function NRJ_closePopup() {
+            if (NRJEl.popupWrap) NRJEl.popupWrap.classList.remove('NRJ_popup_active');
+        }
+
+        if (NRJEl.popupClose) {
+            NRJEl.popupClose.addEventListener('click', NRJ_closePopup);
+        }
+
+        if (NRJEl.popupWrap) {
+            NRJEl.popupWrap.addEventListener('click', function (e) {
+                if (e.target === NRJEl.popupWrap) NRJ_closePopup();
+            });
+        }
+
+
+        /* ══════════════════════════════════════════
+           SUBMIT
+        ══════════════════════════════════════════ */
+        if (NRJEl.popupSubmit) {
+            NRJEl.popupSubmit.addEventListener('click', function () {
+
+                var nameEl = document.getElementById('NRJ_f_name');
+                var emailEl = document.getElementById('NRJ_f_email');
+                var phoneEl = document.getElementById('NRJ_f_phone');
+
+                var n = nameEl ? nameEl.value.trim() : '';
+                var e = emailEl ? emailEl.value.trim() : '';
+                var p = phoneEl ? phoneEl.value.trim() : '';
+
+                if (!n || !e || !p) {
+                    alert('Please fill Name, Email and Phone.');
+                    return;
+                }
+
+                if (NRJEl.popupForm) NRJEl.popupForm.style.display = 'none';
+                if (NRJEl.successMsg) NRJEl.successMsg.classList.add('NRJ_visible');
+                setTimeout(NRJ_closePopup, 2500);
+
+            });
+        }
+
+
+        /* ══════════════════════════════════════════
+           SCROLL / STICKY BEHAVIOUR
+        ══════════════════════════════════════════ */
+        function NRJ_checkMobile() {
+            NRJ_isMobile = window.innerWidth <= 900;
+        }
+
+        function NRJ_setHeight() {
+
+            NRJ_checkMobile();
+
+            if (NRJ_isMobile || !NRJEl.spacer || !NRJEl.track) {
+                if (NRJEl.spacer) NRJEl.spacer.style.height = '';
+                if (NRJEl.track) NRJEl.track.style.transform = 'none';
+                return;
+            }
+
+            var grid = NRJEl.track.querySelector('.NRJ_products_grid');
+
+            if (grid) {
+                var extra = Math.max(0, grid.scrollHeight + 64 - window.innerHeight);
+                NRJ_spacerExtra = extra;
+                NRJEl.spacer.style.height = (window.innerHeight + extra) + 'px';
+            }
+
+        }
+
+        function NRJ_onScroll() {
+
+            if (NRJ_isMobile || !NRJEl.spacer || !NRJEl.track || !NRJEl.bgSlide) return;
+
+            var rect = NRJEl.spacer.getBoundingClientRect();
+            var scrolled = -rect.top;
+
+            if (!NRJ_bgTriggered && rect.top < window.innerHeight * 0.85) {
+                NRJEl.bgSlide.classList.add('NRJ_bg_active');
+                NRJ_bgTriggered = true;
+            }
+
+            if (NRJ_bgTriggered && rect.top > window.innerHeight) {
+                NRJEl.bgSlide.classList.remove('NRJ_bg_active');
+                NRJ_bgTriggered = false;
+            }
+
+            if (scrolled <= 0) {
+                NRJEl.track.style.transform = 'translateY(0)';
+            } else if (scrolled <= NRJ_spacerExtra) {
+                NRJEl.track.style.transform = 'translateY(-' + scrolled + 'px)';
+            } else {
+                NRJEl.track.style.transform = 'translateY(-' + NRJ_spacerExtra + 'px)';
+            }
+
+        }
+
+
+        /* ══════════════════════════════════════════
+           INITIALIZE
+        ══════════════════════════════════════════ */
+        if ('IntersectionObserver' in window && NRJEl.spacer && NRJEl.bgSlide) {
+            new IntersectionObserver(function (entries) {
+                entries.forEach(function (en) {
+                    if (en.isIntersecting && !NRJ_bgTriggered && NRJEl.bgSlide) {
+                        NRJEl.bgSlide.classList.add('NRJ_bg_active');
+                        NRJ_bgTriggered = true;
+                    }
+                });
+            }, { threshold: 0.05 }).observe(NRJEl.spacer);
+        }
+
+        setTimeout(function () {
+            NRJ_setHeight();
+            NRJ_onScroll();
+        }, 200);
+
+        window.addEventListener('scroll', NRJ_onScroll, { passive: true });
+
+        window.addEventListener('resize', function () {
+            NRJ_setHeight();
+            NRJ_onScroll();
+        }, { passive: true });
+
+    }); // End DOMContentLoaded
+
+})();
+// Products Section JS End
+
+
+
+// Why CHoose Us Section JS Start (Animation on scroll)
+(function () {
+    'use strict';
+
+    document.addEventListener('DOMContentLoaded', function () {
+
+        var items = document.querySelectorAll('.whYCHosee_NRJ_reveal');
+
+        if (!items.length) return;
+
+        /* Agar IntersectionObserver support nahi hai to sab dikha do */
+        if (!('IntersectionObserver' in window)) {
+            items.forEach(function (el) {
+                el.classList.add('whYCHosee_NRJ_active');
+            });
+            return;
+        }
+
+        var observer = new IntersectionObserver(function (entries) {
+            entries.forEach(function (entry) {
+                if (entry.isIntersecting) {
+
+                    var el = entry.target;
+                    var delay = el.getAttribute('data-whychosee-delay') || 0;
+
+                    el.style.setProperty('--whychosee-delay', delay + 'ms');
+                    el.classList.add('whYCHosee_NRJ_active');
+
+                    observer.unobserve(el); // ek baar hi animate ho
+                }
+            });
+        }, {
+            threshold: 0.15,
+            rootMargin: '0px 0px -60px 0px'
+        });
+
+        items.forEach(function (el) {
+            observer.observe(el);
+        });
+
+    });
+
+})();
+// Why Choose Us Section JS End (Animation on scroll)
+
+
+
+
+// Vertical Tab JS Start
+function initNRJVerticalTabs(rootSelector = '.NRJ-tabMission') {
+  const tabContainers = document.querySelectorAll(rootSelector);
+
+  tabContainers.forEach(container => {
+    const buttons = container.querySelectorAll('.NRJ-tabMission-btn');
+    const panes = container.querySelectorAll('.NRJ-tabMission-pane');
+
+    function switchTab(btn) {
+      const targetPaneId = btn.getAttribute('data-tab-target');
+
+      // 1. Update button states within this container
+      buttons.forEach(b => {
+        b.classList.remove('active');
+        b.setAttribute('aria-selected', 'false');
+      });
+      btn.classList.add('active');
+      btn.setAttribute('aria-selected', 'true');
+
+      // 2. Update pane states within this container
+      panes.forEach(pane => {
+        if (pane.id === targetPaneId) {
+          pane.classList.add('active');
+        } else {
+          pane.classList.remove('active');
+        }
+      });
+    }
+
+    buttons.forEach(btn => {
+      btn.addEventListener('click', function (e) {
+        e.preventDefault();
+        if (this.classList.contains('active')) return;
+        switchTab(this);
+      });
+    });
+
+    // Initialize active tab on load
+    const activeBtn = container.querySelector('.NRJ-tabMission-btn.active') || buttons[0];
+    if (activeBtn) {
+      switchTab(activeBtn);
+    }
+  });
+}
+
+// Auto initialize on DOM ready
+document.addEventListener('DOMContentLoaded', function () {
+  initNRJVerticalTabs();
+});
+// Vertical Tab JS End
+
+/* ----------------------------------------------------------------------
+   Performance helpers (non-invasive changes)
+   - Make images lazy by default where possible
+   - Decode images async
+   - Defer non-critical JS tasks until after `load` for faster first paint
+   ---------------------------------------------------------------------- */
+(function () {
+  'use strict';
+
+  // Make <img> elements lazy where attribute not set and not explicitly eager
+  function enableLazyImages() {
+    try {
+      var imgs = document.querySelectorAll('img');
+      imgs.forEach(function (img) {
+        if (!img.hasAttribute('loading')) {
+          img.setAttribute('loading', 'lazy');
+        }
+        if (!img.hasAttribute('decoding')) {
+          img.setAttribute('decoding', 'async');
+        }
+      });
+    } catch (e) {
+      // silent
+    }
+  }
+
+  // Defer non-critical tasks until window.load to improve TTFB/TTI
+  if (document.readyState === 'complete') {
+    enableLazyImages();
+  } else {
+    window.addEventListener('load', function () {
+      // small timeout to avoid blocking load handler
+      setTimeout(enableLazyImages, 50);
+    }, { passive: true });
+  }
+
+})();

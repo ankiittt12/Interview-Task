@@ -1,0 +1,48 @@
+.poster{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    align-items: center;
+    margin-bottom: 50px;
+
+}
+.last{
+    height: 150px;
+    width: 250px;
+    object-fit: cover;
+    border-radius: 10px;
+    transition:  0.5s ease;
+}
+.side{
+     height: 250px;
+    width: 250px;
+    object-fit: cover;
+    border-radius: 10px;
+     transition:  0.5s ease;
+}
+.center{
+     height: 360px;
+    width: 200px;
+    object-fit: cover;
+    border-radius: 10px;
+     transition:  0.5s ease;
+}
+.last:hover{
+    height: 250px;
+    width: 350px;
+    object-fit: cover;
+    border-radius: 10px;
+   
+}
+.side:hover{
+     height: 300px;
+    width: 300px;
+    object-fit: cover;
+    border-radius: 10px;
+}
+.center:hover{
+     height: 400px;
+    width: 300px;
+    object-fit: cover;
+    border-radius: 10px;
+}
